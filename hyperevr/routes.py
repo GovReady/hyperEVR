@@ -971,3 +971,119 @@ def custom_css(request, organization, project):
       request.end_headers()
       request.wfile.write(b"file not found")
       return
+
+
+#####################################################
+# Routes for hyperEVR
+#####################################################
+
+@route('/organizations/<organization>/projects/<project>/components2/<component_name>')
+def component(request, organization, project, component_name):
+    """Show one component from a project."""
+
+    # AWS/S3 interface
+    # Boto imports environmental AWS parameters
+    import boto3
+
+    # make s3 connection
+    s3 = boto3.client('s3')
+
+    s3_bucket = "bc-dibnow-es-srv1"
+
+    try:
+        response = s3.list_objects(Bucket=s3_bucket)
+        evidence_files = response['Contents']
+        # TODO: replace IsTruncated warning with a NextMarker continuation loop
+        if response['IsTruncated']:
+            sys.stderr.write("WARNING: List truncated at {} objects.\n".format(response['MaxKeys']))
+    except Exception as e:
+        print(e)
+
+
+    # Load the project.
+    try:
+      project = load_project(organization, project)
+    except ValueError:
+      return "Organization `{}` project `{}` in URL not found.".format(organization, project)
+
+    # Load the component.
+    try:
+      component = opencontrol.load_project_component(project, component_name)
+    except ValueError:
+      return "Component `{}` in URL not found in project.".format(component_name)
+
+    # Each control's metadata, such as control names and control family names,
+    # is loaded from standards. Load the standards first.
+    standards = opencontrol.load_project_standards(project)
+
+    # Load the component's controls.
+    controlimpls = list(opencontrol.load_project_component_controls(component, standards))
+
+    # Group the controls by control family, and sort the families and the controls within them.
+    # Iterate over the controls....
+    from collections import OrderedDict
+    control_families = OrderedDict()
+    for controlimpl in controlimpls:
+        # If this is the first time we're seeing this control family, make a new
+        # bucket for the control family.
+        fam_id = (controlimpl["standard"]["id"], controlimpl["family"]["id"])
+        if fam_id not in control_families:
+            control_families[fam_id] = {
+              "id": controlimpl["family"]["id"],
+              "name": controlimpl["family"]["name"],
+              "abbrev": controlimpl["family"]["abbrev"],
+              "sort_key": (controlimpl["standard"]["name"], controlimpl["family"]["sort_key"]),
+              "standard": controlimpl["standard"],
+              "controls": [],
+            }
+
+        # Put this control into the bucket for its family.
+        control_families[fam_id]["controls"].append(controlimpl)
+
+    # Sort the families and then the controls within them.
+    control_families = list(control_families.values())
+    control_families.sort(key = lambda controlfamily : controlfamily["sort_key"])
+    for control_family in control_families:
+        control_family["controls"].sort(key = lambda controlimpl : controlimpl["sort_key"])
+
+    # For editing controls, we offer a list of evidence to attach to each control.
+    evidence =  list(opencontrol.load_project_component_evidence(component))
+
+    # Make a sorted list of controls --- the control catalog --- that the user can
+    # draw from when adding new control implementations to the component.
+    control_catalog = []
+    for standard in standards.values():
+      for control in standard["controls"].values():
+          control = dict(control) # clone
+          control['standard'] = {
+            "id": standard["id"],
+            "name": standard["name"],
+          }
+          control['family'] = standard['families'].get(control['family'])
+          control_catalog.append(control)
+    control_catalog.sort(key = lambda control : control['sort_key'])
+
+    # Also make a sorted list of source files containing control implementation text.
+    # In OpenControl, all controls are in component.yaml. But we support breaking the
+    # controls out into separate files, and when adding a new control the user can
+    # choose which file to put it in. In case no controls are in the component.yaml
+    # file, ensure it is in the list, and make sure it comes first.
+    import os.path
+    source_files = set()
+    source_files.add(os.path.join(component['path'], 'component.yaml'))
+    for controlimpl in controlimpls:
+      source_files.add(controlimpl['source_file'])
+    source_files = sorted(source_files, key = lambda s : (not s.endswith("component.yaml"), s))
+
+    # Done.
+    return render_template(request, 'evr.html',
+                            project=project,
+                            evidence_files=evidence_files,
+                            component=component,
+                            control_families=control_families,
+                            evidence=evidence,
+                            control_catalog=control_catalog, # used for creating a new control in the component
+                            source_files=source_files, # used for creating a new control in the component
+                            implementation_status_css_classes=implementation_status_css_classes,
+                            stats=compute_control_implementation_statistics(controlimpls),
+                          )

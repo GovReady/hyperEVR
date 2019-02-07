@@ -14,3 +14,6 @@ repos.conf*
 
 # misc
 todo_list.txt
+
+# AWS credential files
+env*.sh
