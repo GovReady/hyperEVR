@@ -1006,7 +1006,7 @@ def component(request, organization, project):
         # If this is the first time we're seeing this control family, make a new
         # bucket for the control family.
 
-        fam_str, file_name = ef["Key"].split("/")
+        fam_str, file_name = ef["Key"].split("/", 1)
 
         # fam_id = (ef["standard"]["id"], ef["family"]["id"])
         if fam_str not in control_families:
