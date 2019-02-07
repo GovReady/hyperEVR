@@ -8,7 +8,7 @@ venv
 .pyc
 __pycache__
 
-# hyperGRC local files
+# hyperEVR local files
 repos.conf
 repos.conf*
 

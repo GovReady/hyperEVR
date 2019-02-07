@@ -62,7 +62,7 @@ def load_project_from_path(project_dir):
     name = opencontrol.get("name") or os.path.splitext(os.path.basename(os.path.normpath(project_dir)))[0]
     description = opencontrol.get("metadata", {}).get("description")
 
-    # Read hyperGRC extensions to the metadata.
+    # Read hyperEVR extensions to the metadata.
     # Create an "organization_id" that we can put into URLs. Use the organization's abbreviation,
     # but add to it a hash of the full organization name so that in the unlikely case that
     # two organizations share the same abbreviation, we still assign unique IDs to them.
@@ -75,8 +75,8 @@ def load_project_from_path(project_dir):
     # We can have a simple feature of custom extensions by reading extra
     # data from files. For example, we could read customized css information
     # for the project
-    # Let's currently look for customized css information for hyperGRC
-    ext_repo_css = os.path.join(project_dir, "_extensions", "hypergrc","static", "css", "repo.css")
+    # Let's currently look for customized css information for hyperEVR
+    ext_repo_css = os.path.join(project_dir, "_extensions", "hyperevr","static", "css", "repo.css")
     if not os.path.isfile(ext_repo_css):
         ext_repo_css = None
 
@@ -117,7 +117,7 @@ def load_project_from_path(project_dir):
         # Local disk path to the OpenControl root directory.
         "path": project_dir,
 
-        # URL for the project in hyperGRC.
+        # URL for the project in hyperEVR.
         "url": "/organizations/{}/projects/{}".format(
             quote_plus(organization_id),
             quote_plus(project_id)
@@ -192,7 +192,7 @@ def load_project_components(project):
             # Local disk path to the directory containing the component.yaml file.
             "path": os.path.normpath(os.path.join(project["path"], component_path)),
 
-            # URL for the component in hyperGRC.
+            # URL for the component in hyperEVR.
             "url": project["url"] + "/components/" + quote_plus(component_id),
         }
 
@@ -468,7 +468,7 @@ def load_project_component_controls(component, standards):
         # Note that we're reading "implementation_status" from the narrative
         # part. This is non-conformant with OpenControl which has a single
         # implementation_statuses field on the *control*, for all control
-        # parts, which are are ignoring so far in hyperGRC.
+        # parts, which are are ignoring so far in hyperEVR.
         import copy
         for narrative_part in control.get("narrative", []):
             controlimpl = dict(control_metadata)

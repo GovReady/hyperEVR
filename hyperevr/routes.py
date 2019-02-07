@@ -1,4 +1,4 @@
-# This module contains hyperGRC's routes, i.e. handlers for
+# This module contains hyperEVR's routes, i.e. handlers for
 # virtual paths.
 
 from .render import render_template, redirect, send_file, send_json_response
@@ -133,7 +133,7 @@ def index(request):
 
     # Prepare modify page message
     edit_file = os.path.join(os.getcwd(), "repos.conf")
-    modify_msg = "To modify listed projects, change hyperGRC launch params or edit file: `{}`".format(edit_file)
+    modify_msg = "To modify listed projects, change hyperEVR launch params or edit file: `{}`".format(edit_file)
 
     # Render the homepage template.
     return render_template(request, 'index.html',
@@ -289,16 +289,16 @@ def settings(request):
     # Read the version file
     try:
       with open("VERSION", encoding="utf8") as f:
-        HYPERGRC_VERSION=f.read().replace('\n', '')
+        HYPEREVR_VERSION=f.read().replace('\n', '')
     except:
-      fatal_error("hyperGRC requires a VERSION file.")
+      fatal_error("hyperEVR requires a VERSION file.")
 
     # Prepare modify page message
     modify_msg = "View this page within a project for modification details."
 
     return render_template(request, 'settings.html',
                           modify_msg=modify_msg,
-                          hypergrc_version=HYPERGRC_VERSION
+                          hyperevr_version=HYPEREVR_VERSION
                           )
 
 @route('/organizations/<organization>/projects/<project>/settings')
@@ -314,9 +314,9 @@ def project_settings(request, organization, project):
     # Read the version file
     try:
       with open("VERSION", encoding="utf8") as f:
-        HYPERGRC_VERSION=f.read().replace('\n', '')
+        HYPEREVR_VERSION=f.read().replace('\n', '')
     except:
-      fatal_error("hyperGRC requires a VERSION file.")
+      fatal_error("hyperEVR requires a VERSION file.")
 
     # Prepare modify page message
     edit_dir = os.path.join(project["path"], "opencontrol.yaml")
@@ -325,7 +325,7 @@ def project_settings(request, organization, project):
     return render_template(request, 'settings.html',
                           project=project,
                           modify_msg=modify_msg,
-                          hypergrc_version=HYPERGRC_VERSION
+                          hyperevr_version=HYPEREVR_VERSION
                           )
 
 @route('/organizations/<organization>/projects/<project>/assessments')
@@ -937,7 +937,7 @@ def update_control(request):
 # Routes for Customization
 #####################################################
 
-@route('/organizations/<organization>/projects/<project>/_extensions/hypergrc/static/css/repo.css')
+@route('/organizations/<organization>/projects/<project>/_extensions/hyperevr/static/css/repo.css')
 def custom_css(request, organization, project):
     """Set custom css settings"""
 
@@ -947,7 +947,7 @@ def custom_css(request, organization, project):
     except ValueError:
       return "Organization `{}` project `{}` in URL not found.".format(organization, project)
 
-    doc = os.path.join(project["path"], "_extensions", "hypergrc","static", "css", "repo.css")
+    doc = os.path.join(project["path"], "_extensions", "hyperevr","static", "css", "repo.css")
 
     # Make sure this file exists and TODO: has no relative paths or goes to system directory
     # We aren't too worried about security when user is running on their own workstation.

@@ -30,7 +30,7 @@ from .routes import PROJECT_LIST, ROUTES
 
 # Read command-line arguments.
 
-parser = argparse.ArgumentParser(description='hyperGRC')
+parser = argparse.ArgumentParser(description='hyperEVR')
 parser.add_argument('--bind', default="localhost:8000", help='[host:]port to bind to')
 parser.add_argument('--showaddress', default=None, help='The address to recommend the user visit.')
 parser.add_argument('project', nargs="*", default=["@repos.conf"], help='Path to a directory containing an opencontrol.yaml file for a system. Specify more than once to edit multiple system projects. Precede with an @-sign to read a list of directories from a newline-delimited text file.')

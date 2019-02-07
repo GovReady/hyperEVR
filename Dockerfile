@@ -1,7 +1,7 @@
 # Build on Docker's official CentOS 7 image.
 FROM centos:7
 
-# Expose the port that hyperGRC listens on by default.
+# Expose the port that hyperEVR listens on by default.
 EXPOSE 8000
 
 # Put the Python source code here.
@@ -29,7 +29,7 @@ RUN pip3.6 install --no-cache-dir -r requirements.txt
 # infrequently changed steps above.)
 COPY VERSION VERSION
 COPY example example
-COPY hypergrc hypergrc
+COPY hyperevr hyperevr
 COPY static static
 
 # Create an empty repos.conf file so the program doesn't die
@@ -46,26 +46,26 @@ USER application
 # Add the source files to the PYTHONPATH.
 ENV PYTHONPATH="/usr/src/app:${PYTHONPATH}"
 
-# Set the startup command to launch hyperGRC and bind on all network interfaces
+# Set the startup command to launch hyperEVR and bind on all network interfaces
 # so that the host can connect. Since the end-user will not visit it at 0.0.0.0,
-# override the address that hyperGRC will recommend that the user visit so there
+# override the address that hyperEVR will recommend that the user visit so there
 # is no confusion.
 ENTRYPOINT [ "/usr/bin/python3.6", \
-             "-m", "hypergrc", \
+             "-m", "hyperevr", \
              "--bind", "0.0.0.0:8000", \
              "--showaddress", "http://localhost:8000" ]
 
 # Additionally set the default command-line argument. The CMD value below is
 # simply appended to the ENTRYPOINT command-line to form the start command.
-# We'll set it to "/opencontrol" so that hyperGRC looks there for an OpenControl
+# We'll set it to "/opencontrol" so that hyperEVR looks there for an OpenControl
 # repository, and then it is up to the host `docker container run` command to
 # mount a volume at that location.
 #
 # The advantage of using CMD separately from ENTRYPOINT is that ENTRYPOINT cannot
 # be changed by the `docker run` command, but CMD can be overridden simply by
 # adding more arguments to the run command after the image name. So e.g.
-# `docker container run hypergrc:latest /path1 /path2` would replace the default
-# `/opencontrol` argument with two other container paths, if you want hyperGRC
+# `docker container run hyperevr:latest /path1 /path2` would replace the default
+# `/opencontrol` argument with two other container paths, if you want hyperEVR
 # to read other directories.
 CMD ["/opencontrol"]
 

@@ -11,24 +11,24 @@ A `Dockerfile` is provided in this repository to launch hyperEVR in a Docker con
 First, get the source code and build the Docker image:
 
 ```sh
-git clone https://github.com/GovReady/hyperEVR.git hypergrc
-cd hypergrc
+git clone https://github.com/GovReady/hyperEVR.git hyperevr
+cd hyperevr
 docker image pull centos:7
-docker image build --tag hypergrc:latest .
+docker image build --tag hyperevr:latest .
 ```
 
 Next you will start a container using the image. When running the container, you will need to
 
 * Provide the container with access to an OpenControl repository on your workstation by mounting a volume using the docker `-v` option. The workstation path must be an [absolute directory](https://docs.docker.com/engine/reference/run/#volume-shared-filesystems), and the container path must be `/opencontrol`. In the example start command below, we use `` `pwd` `` to help form the absolute path to the example OpenControl data in this repository, but you can just set `REPOSITORY` to any absolute path.
 * Map a port on your workstation to the container using the Docker `-p` option, such as `-p 127.0.0.1:8000:8000`.
-* Start hyperGRC in ephemeral `--rm` and interactive mode `-it` so that you can end it by typing CTRL+C.
+* Start hyperEVR in ephemeral `--rm` and interactive mode `-it` so that you can end it by typing CTRL+C.
 
 ```sh
 REPOSITORY=`pwd`/example/agencyapp
-docker container run -v $REPOSITORY:/opencontrol -p 127.0.0.1:8000:8000 --rm -it hypergrc:latest 
+docker container run -v $REPOSITORY:/opencontrol -p 127.0.0.1:8000:8000 --rm -it hyperevr:latest 
 ```
 
-The visit hyperGRC at `http://127.0.0.1:8000`.
+The visit hyperEVR at `http://127.0.0.1:8000`.
 
 Set `REPOSITORY` to the absolute path to your OpenControl repository.
 
@@ -43,11 +43,11 @@ Set `REPOSITORY` to the absolute path to your OpenControl repository.
 
 ### Getting the source code and package dependencies
 
-hyperGRC can be installed on your workstation by getting the hyperGRC source code with `git` and running it with Python. First, get the source code and install its Python package dependencies:
+hyperEVR can be installed on your workstation by getting the hyperEVR source code with `git` and running it with Python. First, get the source code and install its Python package dependencies:
 
 ```sh
-git clone https://github.com/GovReady/hyperGRC.git hypergrc
-cd hypergrc
+git clone https://github.com/GovReady/hyperEVR.git hyperevr
+cd hyperevr
 pip install -r requirements.txt
 ```
 
@@ -55,11 +55,11 @@ NOTE: You may need to adjust the command for `pip` (.e.g `pip3`) depending on ho
 
 #### Installing with virtualenv
 
-You may, optionally, consider using virtualenv to keep the Python package dependencies for hyperGRC isolated from other Python software on your workstation. In that case, run instead:
+You may, optionally, consider using virtualenv to keep the Python package dependencies for hyperEVR isolated from other Python software on your workstation. In that case, run instead:
 
 ```sh
-git clone https://github.com/GovReady/hyperGRC.git hypergrc
-cd hypergrc
+git clone https://github.com/GovReady/hyperEVR.git hyperevr
+cd hyperevr
 virtualenv venv -p python3
 source venv/bin/activate
 pip install -r requirements.txt
@@ -67,15 +67,15 @@ pip install -r requirements.txt
 
 ### Launching
 
-After installing the few required Python libraries, start the hyperGRC server using the included example compliance repository for Agency App:
+After installing the few required Python libraries, start the hyperEVR server using the included example compliance repository for Agency App:
 
 ```sh
-$ python -m hypergrc example/agencyapp
-[hyperGRC] starting...
-[hyperGRC] loading example/agencyapp
-[hyperGRC] loading complete
-[hyperGRC] `Control-C` to stop
-[hyperGRC] hyperGRC'ing 1 project at http://localhost:8000...
+$ python -m hyperevr example/agencyapp
+[hyperEVR] starting...
+[hyperEVR] loading example/agencyapp
+[hyperEVR] loading complete
+[hyperEVR] `Control-C` to stop
+[hyperEVR] hyperEVR'ing 1 project at http://localhost:8000...
 ```
 
 Open the indicated URL in your web browser.
@@ -84,28 +84,28 @@ The included compliance-as-code repository `example/agencyapp` has fake system c
 
 NOTE: You may need to adjust the command for `python` (.e.g `python3`) depending on how Python 3 was installed on your system.
 
-### Starting hyperGRC with virtualenv
+### Starting hyperEVR with virtualenv
 
-If you installed hyperGRC with a virtualenv above, start it by first activating the virtualenv:
+If you installed hyperEVR with a virtualenv above, start it by first activating the virtualenv:
 
 ```sh
 # Activate the virtual environment if it is not already active.
 source venv/bin/activate
 
-python -m hypergrc example/agencyapp
+python -m hyperevr example/agencyapp
 ```
 
 ## Command-line options
 
 ### OpenControl repository paths
 
-hyperGRC accepts several command-line arguments. You've already seen one: the local path to the OpenControl repository. You may specify one or more paths to OpenControl repositories to open them all up within hyperGRC.
+hyperEVR accepts several command-line arguments. You've already seen one: the local path to the OpenControl repository. You may specify one or more paths to OpenControl repositories to open them all up within hyperEVR.
 
 ```sh
-python -m hypergrc example/agencyapp path/to/project2 ...
+python -m hyperevr example/agencyapp path/to/project2 ...
 ```
 
-If you do not specify any paths on the command line, hyperGRC reads a list of paths to repositories from a file named `repos.conf`, e.g.:
+If you do not specify any paths on the command line, hyperEVR reads a list of paths to repositories from a file named `repos.conf`, e.g.:
 
 ```text
 repos.conf
@@ -114,18 +114,18 @@ example/agencyapp
 path/to/project2
 ```
 
-Create this file if it does not exist if you would like to start hyperGRC without any command-line options. An example of such a file is in [repos.conf.example](repos.conf.example).
+Create this file if it does not exist if you would like to start hyperEVR without any command-line options. An example of such a file is in [repos.conf.example](repos.conf.example).
 
 Start as:
 
 ```bash
-python -m hypergrc
+python -m hyperevr
 ```
 
 You may also specify files containing lists of paths to repositories on the command-line by preceding the listing file with an `@`-sign. The command above is equivalent to:
 
 ```bash
-python -m hypergrc @repos.conf
+python -m hyperevr @repos.conf
 ```
 
 ### Other options
@@ -133,12 +133,12 @@ python -m hypergrc @repos.conf
 To bind to a host and port other than the default `localhost:8000`, use `--bind host:port`, e.g.:
 
 ```bash
-python -m hypergrc --bind 0.0.0.0:80
+python -m hyperevr --bind 0.0.0.0:80
 ```
 
 ## Understanding the compliance-as-code data files
 
-OpenControl creates readable structured standard for representing component to control mappings. hyperGRC reads and writes OpenControl data YAML files, including:
+OpenControl creates readable structured standard for representing component to control mappings. hyperEVR reads and writes OpenControl data YAML files, including:
 
 * A system `opencontrol.yaml` file which containins metadata about the information technology system and lists the system's components and compliance standards in use.
 * One or more `component.yaml` files which describe components of the information technology system. Each component has a name and other metadata and list of control implementations (i.e. control narrative texts).
@@ -159,7 +159,7 @@ A typical OpenControl repository contains files in the following directory layou
         └── component.yaml
 ```
 
-Although not currently conformant with the OpenControl standard, hyperGRC also allows components to be broken out into multiple files:
+Although not currently conformant with the OpenControl standard, hyperEVR also allows components to be broken out into multiple files:
 
 ```
 ...
@@ -180,11 +180,11 @@ For more details, see the files in example/agencyapp.
 
 ### From the command line
 
-hyperGRC includes a command-line tool to generate a partial system security plan in Markdown format. The tool concatenates all of the control narratives in an OpenControl system repository, adding headings and control descriptions.
+hyperEVR includes a command-line tool to generate a partial system security plan in Markdown format. The tool concatenates all of the control narratives in an OpenControl system repository, adding headings and control descriptions.
 
 For example, to generate a system security plan for the example application stored in this repository, run:
 
-	python3 -m hypergrc.ssp -d example/agencyapp
+	python3 -m hyperevr.ssp -d example/agencyapp
 
 The system security plan is printed to the console. It will look like:
 
@@ -209,7 +209,7 @@ Destruction configuration for developer access to organization-defined...
 
 You will probably want to redirect the output to a file, e.g.:
 
-	python3 -m hypergrc.ssp -d example/agencyapp > ssp.md
+	python3 -m hyperevr.ssp -d example/agencyapp > ssp.md
 
 If you have [pandoc](https://pandoc.org/) installed, you could then convert the SSP into HTML or a Microsoft Word document:
 
@@ -222,7 +222,7 @@ The `-d` option instructs the SSP generator to include control descriptions. You
 
 ## Customizing project appearance
 
-The appearance of each project can be customized by adding a css file called `_extensions/hypergrc/static/css/repo.css` to the project's repository and referencing the path to the `_extensions/hypergrc` directory in the `opencontrol.yaml` file like so:
+The appearance of each project can be customized by adding a css file called `_extensions/hyperevr/static/css/repo.css` to the project's repository and referencing the path to the `_extensions/hyperevr` directory in the `opencontrol.yaml` file like so:
 
 ```
 # ...
@@ -232,10 +232,10 @@ standards:
 certifications:
   - ./certifications/fisma-low-impact.yaml
 _extensions:
-  - ./_extensions/hypergrc
+  - ./_extensions/hyperevr
 ```
 
-hyperGRC's includes `_extensions/hypergrc/static/css/repo.css` as the last css file loaded in the base template when the custom extension is specified in the `opencontrol.yaml` manifest and the file `repo.css` exists.
+hyperEVR's includes `_extensions/hyperevr/static/css/repo.css` as the last css file loaded in the base template when the custom extension is specified in the `opencontrol.yaml` manifest and the file `repo.css` exists.
 
 ### Example project `repo.css` files
 
@@ -266,11 +266,11 @@ body {
 
 ## Development
 
-Development is easier if hyperGRC is run in a way that it restarts when any source code changes occur, so that you can see your changes immediately. `nodemon` from the Node package manager is a handy tool to do that. [Install Node](https://nodejs.org/en/download/) [Mac OS X users first [read this](https://gist.github.com/DanHerbert/9520689)] and then run:
+Development is easier if hyperEVR is run in a way that it restarts when any source code changes occur, so that you can see your changes immediately. `nodemon` from the Node package manager is a handy tool to do that. [Install Node](https://nodejs.org/en/download/) [Mac OS X users first [read this](https://gist.github.com/DanHerbert/9520689)] and then run:
 
 ```sh
 npm install -g nodemon
-nodemon -e py -x python3 -m hypergrc
+nodemon -e py -x python3 -m hyperevr
 ```
 
 ## Licensing
