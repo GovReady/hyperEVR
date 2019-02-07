@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-  hyperEVR - {{project.title}} - {{component.name}}
+  hyperEVR - {{project.title}} - Evidence
 {% endblock %}
 
 {% block content %}
@@ -11,20 +11,17 @@
   
   <div>{{ project.title }}</div>
   <h3 style="margin: 0 0 18px 0;">Evidence Viewer</h3>
-  <!-- <h3 style="margin: 0 0 18px 0;">{{ component.name }}</h3> -->
 
   <div class="page-info-card">
-    <h3>IGNORE - Content from Component - control mapping</h3>
-
-    <h4>Component impact</h4>
+    <h4>Evidence Stat Group 1:</h4>
     <div id="control-implementation-statistics">
     </div>
 
-    <h4>Current control-parts status:</h4>
+    <h4>Evidence Stat Group 2:</h4>
     <div id="control-parts-by-status">
     </div>
 
-    <h4>Language analysis:</h4>
+    <h4>Evidence Stat Group 3:</h4>
     <div id="language-statistics">
     </div>
   </div>
@@ -60,101 +57,19 @@
   </div><!-- /container -->
 {% endfor %}
 
-    <div style="width:280px; background-color: #fff; border:2px dashed #aaa; margin-right: 12px; float: left; padding: 18px; border-radius: 5px; color: #999; opacity: 0.6;">
-        <a href="#" style="display: block; background: none; color: #555; text-decoration: none;" onclick='new_control({ component: { id: {{component.id|tojson}}, name: {{component.name|tojson}} } }, function() { loading(); window.location.reload(); }); return false;'>
-          Add another group...
-        </a>
-    </div>
-
-
 </div>
 
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // Load and display the statistics.
-  function show_control_implementation_statistics(stats) {
-        function add_stats(node, stats, keys) {
-          node.text(''); // clear on update
-          keys.forEach(function(item) {
-            var n = $('<div class="row"><div class="col-md-3" style="text-align: right;"></div><div class="col-md-9"></div></div>');
-            node.append(n);
-            n.find(".col-md-3").text(stats[item.key].format(0));
-            n.find(".col-md-9").text(item.label);
-          })
-        }
-
-        add_stats($('#control-implementation-statistics'), stats, [
-          { key: "control_families_count", label: "control families" },
-          { key: "control_count", label: "controls" },
-          { key: "control_part_count", label: "control parts" }
-        ]);
-
-        add_stats($('#control-parts-by-status'), stats.implementation_status_counts, Object.keys(stats.implementation_status_counts).map(function(status) { return { key: status, label: status } } ));
-
-        add_stats($('#language-statistics'), stats, [
-          { key: "total_words", label: "total words" },
-          { key: "average_words_per_controlpart", label: "average words per control-part " }
-        ]);
-  }
-
-  function update_control_implementation_statistics() {
-    $.ajax({
-      url: {{component.url|tojson}}+"/statistics.json",
-      success: show_control_implementation_statistics
-    });
-  }
-
-  /**
-   * Number.prototype.format(demical_places, s, c).
-   * https://stackoverflow.com/a/14428340
-   */
-  Number.prototype.format = function(demical_places) {
-      var n = demical_places;
-      var x = 3; // thousands grouping
-      var s = ','; // thousands separator
-      var c = '.'; // demical marker
-      var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\D' : '$') + ')',
-          num = this.toFixed(Math.max(0, ~~n));
-
-      return (c ? num.replace('.', c) : num).replace(new RegExp(re, 'g'), '$&' + (s || ','));
-  };
-
+  // TEMPORARY SCRIPTS WHILE REFACTORING EVIDENCE PAGE
   $('.card-control[data-variable]').click(function() {
     // Show this element as active.
     var elem = $(this);
     $('.card-control').removeClass('active');
     elem.addClass('active');
-
-    // Show editor. Then update the object that holds the current
-    // information for this control.
-    var controldata = window[elem.attr('data-variable')];
-    edit_control(controldata, function (new_control_data) {
-      update_control(new_control_data, elem, controldata);
-    });
   })
 
-  // Update tool tip after a control is edited.
-  function update_control(new_control_data, elem, control) {
-    // Update our local control object with the updated data from the server.
-    control.narrative = new_control_data.narrative;
-    control.implementation_status = new_control_data.implementation_status;
-
-    // Update the UI.
-    elem.attr('title', control.narrative);
-    var implementation_status_css_classes = {{implementation_status_css_classes|tojson}};
-    var classes = implementation_status_css_classes[new_control_data.implementation_status] || implementation_status_css_classes[''];
-    elem.find('.ctl-i7r span')
-      .attr('class', classes)
-      .attr('title', new_control_data.implementation_status);
-
-    // Update stats.
-    update_control_implementation_statistics();
-  }
-
-  $(function() {
-    show_control_implementation_statistics({{stats|tojson}});
-  })
 </script>
 {% endblock %}
