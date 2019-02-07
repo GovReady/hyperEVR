@@ -1,5 +1,5 @@
-# This is the main entry point for hyperGRC. This module
-# starts the hyperGRC HTTP server and runs until CTRL+C
+# This is the main entry point for hyperEVR. This module
+# starts the hyperEVR HTTP server and runs until CTRL+C
 # is pressed.
 
 # Check that we are running in Python 3.5+. A common error
@@ -10,13 +10,13 @@
 import sys
 
 def fatal_error(message):
-  sys.stderr.write("hyperGRC failed to start:\n")
+  sys.stderr.write("hyperEVR failed to start:\n")
   sys.stderr.write(message)
   sys.stderr.write('\n')
   sys.exit(1)
 
 if (sys.version_info.major < 3) or (sys.version_info.major == 3 and sys.version_info.minor < 5):
-  fatal_error("hyperGRC requires Python 3.5 or higher.")
+  fatal_error("hyperEVR requires Python 3.5 or higher.")
 
 ###########################################################
 
@@ -176,25 +176,25 @@ try:
   COLRS = "\33[33m"
   COLRS2 = "\33[92m"
   COLRE = "\33[0m"
-  sys.stdout.write(COLRS+"[hyperGRC] starting...\n"+COLRE)
+  sys.stdout.write(COLRS+"[hyperEVR] starting...\n"+COLRE)
   time.sleep(.800)
   for project in PROJECT_LIST:
-    sys.stdout.write(COLRS+"\r[hyperGRC] loading {}".format(project)+COLRE)
+    sys.stdout.write(COLRS+"\r[hyperEVR] loading {}".format(project)+COLRE)
     time.sleep(.150)
     if len(PROJECT_LIST) > 1:
       sys.stdout.write("\r"+(40+len(project))*' ')
   if len(PROJECT_LIST) > 1:
-    sys.stdout.write(COLRS+"\r[hyperGRC] loading complete\n"+COLRE)
+    sys.stdout.write(COLRS+"\r[hyperEVR] loading complete\n"+COLRE)
   else:
-    sys.stdout.write(COLRS+"\n[hyperGRC] loading complete\n"+COLRE)
+    sys.stdout.write(COLRS+"\n[hyperEVR] loading complete\n"+COLRE)
   time.sleep(.800)
-  sys.stdout.write(COLRS+"[hyperGRC] `Control-C` to stop\n"+COLRE)
+  sys.stdout.write(COLRS+"[hyperEVR] `Control-C` to stop\n"+COLRE)
   
   url = args.showaddress or "http://{}:{}".format(BIND_HOST, BIND_PORT)
   if len(PROJECT_LIST) > 1:
-    sys.stdout.write(COLRS2+"[hyperGRC] hyperGRC'ing {} projects at {}...\n".format(len(PROJECT_LIST), url)+COLRE)
+    sys.stdout.write(COLRS2+"[hyperEVR] hyperEVR'ing {} projects at {}...\n".format(len(PROJECT_LIST), url)+COLRE)
   else:
-    sys.stdout.write(COLRS2+"[hyperGRC] hyperGRC'ing {} project at {}...\n".format(len(PROJECT_LIST), url)+COLRE)
+    sys.stdout.write(COLRS2+"[hyperEVR] hyperEVR'ing {} project at {}...\n".format(len(PROJECT_LIST), url)+COLRE)
   httpd.serve_forever()
 except KeyboardInterrupt:
     pass

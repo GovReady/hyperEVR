@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-  hyperGRC - Add Project
+  hyperEVR - Add Project
 {% endblock %}
 
 {% block content %}
@@ -19,17 +19,17 @@
     <h1>New OpenControl project created</h1>
 
     <div class="alert alert-danger" role="alert">
-      <b>ALMOST DONE! <u>RE-LAUNCH</u> hyperGRC...</b>
+      <b>ALMOST DONE! <u>RE-LAUNCH</u> hyperEVR...</b>
     </div>
 
-    <p><b>Please <u>RE-LAUNCH</u> hyperGRC to view {{system_name}}.</b></p>
+    <p><b>Please <u>RE-LAUNCH</u> hyperEVR to view {{system_name}}.</b></p>
 
     <p>
       {{system_name}} has been created locally in <code>{{repo_path}}</code>
       and added to your <code>repo.conf</code> file.
     </p>
 
-    <h2><small>Re-launch hyperGRC from the command-line to view {{system_name}} in list of projects...</small></h2>
+    <h2><small>Re-launch hyperEVR from the command-line to view {{system_name}} in list of projects...</small></h2>
 
     <pre>python3 -m hypergrc @repos.conf</pre>
 

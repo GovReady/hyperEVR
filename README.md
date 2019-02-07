@@ -1,17 +1,17 @@
-# hyperGRC
+# hyperEVR
 
-hyperGRC is a lightweight, in-browser tool for managing compliance-as-code repositories in OpenControl format.
+hyperEVR is a lightweight, in-browser tool compliance-as-code evidence viewer.
 
-The goal is a low-profile, hyper-useful IT GRC tool supporting compliance-as-code practices beginning with managing reusable OpenControl files for information technology systems and components.
+The goal is a low-profile, hyper-useful tool for viewing evidence supporting compliance-as-code practices.
 
 ## Install using Docker
 
-A `Dockerfile` is provided in this repository to launch hyperGRC in a Docker container. The `Dockerfile` is based on CentOS 7.
+A `Dockerfile` is provided in this repository to launch hyperEVR in a Docker container. The `Dockerfile` is based on CentOS 7.
 
 First, get the source code and build the Docker image:
 
 ```sh
-git clone https://github.com/GovReady/hyperGRC.git hypergrc
+git clone https://github.com/GovReady/hyperEVR.git hypergrc
 cd hypergrc
 docker image pull centos:7
 docker image build --tag hypergrc:latest .
@@ -275,5 +275,5 @@ nodemon -e py -x python3 -m hypergrc
 
 ## Licensing
 
-hyperGRC is copyrighted 2018 by GovReady PBC and available under the open source license indicated in [LICENSE.md](LICENSE.md).
+hyperEVR is copyrighted 2018 by GovReady PBC and available under the open source license indicated in [LICENSE.md](LICENSE.md).
 
