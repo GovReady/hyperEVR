@@ -747,7 +747,7 @@ def project_control_grid(request, organization, project, standard_key, control_k
                             implementation_status_css_classes=implementation_status_css_classes,
                           )
 
-@route('/organizations/<organization>/projects/<project>/evidence')
+@route('/organizations/<organization>/projects/<project>/evidence_old')
 def evidence(request, organization, project):
     """List evidence in the entire project."""
 
@@ -977,7 +977,7 @@ def custom_css(request, organization, project):
 # Routes for hyperEVR
 #####################################################
 
-@route('/organizations/<organization>/projects/<project>/components2/<component_name>')
+@route('/organizations/<organization>/projects/<project>/evidence/<component_name>')
 def component(request, organization, project, component_name):
     """Show one component from a project."""
 
@@ -999,6 +999,31 @@ def component(request, organization, project, component_name):
     except Exception as e:
         print(e)
 
+    # Group evidence by control family
+    # Iterate over the evidence files
+    from collections import OrderedDict
+    control_families = OrderedDict()
+    for ef in evidence_files:
+        # If this is the first time we're seeing this control family, make a new
+        # bucket for the control family.
+
+        fam_str, file_name = ef["Key"].split("/")
+
+        # fam_id = (ef["standard"]["id"], ef["family"]["id"])
+        if fam_str not in control_families:
+            print("creating control_family for {}".format(fam_str))
+            control_families[fam_str] = {
+              "id": fam_str, # Currently not used in hyperEVR evidence page with swimlanes
+              "name": fam_str,
+              "sort_key": fam_str,
+              "artifacts": [],
+            }
+
+        # Put this evidence into the bucket for its family.
+        control_families[fam_str]["artifacts"].append(file_name)
+
+    # Convert control_families to a simple list
+    control_families = list(control_families.values())
 
     # Load the project.
     try:
@@ -1018,33 +1043,6 @@ def component(request, organization, project, component_name):
 
     # Load the component's controls.
     controlimpls = list(opencontrol.load_project_component_controls(component, standards))
-
-    # Group the controls by control family, and sort the families and the controls within them.
-    # Iterate over the controls....
-    from collections import OrderedDict
-    control_families = OrderedDict()
-    for controlimpl in controlimpls:
-        # If this is the first time we're seeing this control family, make a new
-        # bucket for the control family.
-        fam_id = (controlimpl["standard"]["id"], controlimpl["family"]["id"])
-        if fam_id not in control_families:
-            control_families[fam_id] = {
-              "id": controlimpl["family"]["id"],
-              "name": controlimpl["family"]["name"],
-              "abbrev": controlimpl["family"]["abbrev"],
-              "sort_key": (controlimpl["standard"]["name"], controlimpl["family"]["sort_key"]),
-              "standard": controlimpl["standard"],
-              "controls": [],
-            }
-
-        # Put this control into the bucket for its family.
-        control_families[fam_id]["controls"].append(controlimpl)
-
-    # Sort the families and then the controls within them.
-    control_families = list(control_families.values())
-    control_families.sort(key = lambda controlfamily : controlfamily["sort_key"])
-    for control_family in control_families:
-        control_family["controls"].sort(key = lambda controlimpl : controlimpl["sort_key"])
 
     # For editing controls, we offer a list of evidence to attach to each control.
     evidence =  list(opencontrol.load_project_component_evidence(component))
@@ -1078,7 +1076,6 @@ def component(request, organization, project, component_name):
     # Done.
     return render_template(request, 'evr.html',
                             project=project,
-                            evidence_files=evidence_files,
                             component=component,
                             control_families=control_families,
                             evidence=evidence,
@@ -1087,3 +1084,4 @@ def component(request, organization, project, component_name):
                             implementation_status_css_classes=implementation_status_css_classes,
                             stats=compute_control_implementation_statistics(controlimpls),
                           )
+
