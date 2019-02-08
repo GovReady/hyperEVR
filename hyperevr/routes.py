@@ -988,6 +988,9 @@ def component(request, organization, project):
     # make s3 connection
     s3 = boto3.client('s3')
     s3_bucket = "bc-dibnow-es-srv1"
+    evidence_server = {"name": "AWS S3",
+                       "anchor": "S3 bucket '{}'".format(s3_bucket)
+                      }
 
     try:
         response = s3.list_objects(Bucket=s3_bucket)
@@ -1035,6 +1038,7 @@ def component(request, organization, project):
                             project=project,
                             # component=component,
                             control_families=control_families,
+                            evidence_server=evidence_server,
                             # evidence=evidence,
                             # control_catalog=control_catalog, # used for creating a new control in the component
                             # source_files=source_files, # used for creating a new control in the component
@@ -1042,3 +1046,28 @@ def component(request, organization, project):
                             # stats=compute_control_implementation_statistics(controlimpls),
                           )
 
+@route('/organizations/<organization>/projects/<project>/evidence/<file>/download')
+def component(request, organization, project, file):
+    """Show one component from a project."""
+
+    # AWS/S3 interface
+    # Boto imports environmental AWS parameters
+    import boto3
+    from botocore.client import Config
+
+    # make s3 connection
+    s3 = boto3.client('s3', 'us-east-1', config=Config(s3={'addressing_style': 'path'},signature_version='s3v4'))
+    s3_bucket = "bc-dibnow-es-srv1"
+
+    # generate pre-signed URL
+    url = s3.generate_presigned_url(
+        ClientMethod='get_object',
+        Params={
+            'Bucket': s3_bucket,
+            'Key': file
+        },
+        ExpiresIn=120 # seconds
+    )
+
+    # return url
+    return redirect(request, url)

@@ -13,16 +13,10 @@
   <h3 style="margin: 0 0 18px 0;">Evidence Viewer</h3>
 
   <div class="page-info-card">
-    <h4>Evidence Stat Group 1:</h4>
-    <div id="control-implementation-statistics">
-    </div>
-
-    <h4>Evidence Stat Group 2:</h4>
-    <div id="control-parts-by-status">
-    </div>
-
-    <h4>Evidence Stat Group 3:</h4>
-    <div id="language-statistics">
+    <h4>Evidence Server</h4>
+    <div id="es-info">
+      <p>{{ evidence_server.name }}</p>
+      <p>{{ evidence_server.anchor }}</p>
     </div>
   </div>
 
@@ -47,7 +41,7 @@
                data-variable="control_{{outer_loop.index}}_{{loop.index}}">
 
               <div class="card-control-textlink">
-                  {{ ef }}
+                  <a href="{{project.url}}/evidence/{{control_family.name}}%2f{{ ef | urlencode }}/download"><span class="glyphicon glyphicon-download"></span></a> {{ ef }}
               </div>
           </div>
       {% endfor %}
