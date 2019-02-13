@@ -70,6 +70,7 @@ def load_project_from_path(project_dir):
     organization_abbrev = opencontrol.get("metadata", {}).get("organization", {}).get("abbreviation", organization_name)
     organization_id = organization_abbrev[0:12] + "-" + short_hash(organization_name)
     source_repository = opencontrol.get("metadata", {}).get("repository")
+    evidence_server = opencontrol.get("metadata", {}).get("evidence_server")
 
     # Read in any '_extensions' data defined in project
     # We can have a simple feature of custom extensions by reading extra
@@ -113,6 +114,9 @@ def load_project_from_path(project_dir):
         "description": description,
         "source_repository": source_repository,
         "authorization_id": authorization_id,
+
+        # Evidence Server metadata for the project
+        "evidence_server": evidence_server,
 
         # Local disk path to the OpenControl root directory.
         "path": project_dir,
@@ -204,6 +208,19 @@ def load_project_component(project, component_id):
         if component["id"] == component_id:
             return component
     raise ValueError("Component {} does not exist in project {}.".format(component_id, project["id"]))
+
+def load_project_evidence_server(project):
+    print(project)
+    # Load project's evidence server from OpenControl metadata
+    # This information is an extension of current OpenControl schema
+    if "evidence_server" not in project:
+        # opencontrol.yaml does not have a metadata information evidence server
+        return {"type": "Not defined",
+                "location": None,
+                "notes": "An evidence server is not described in the `opencontrol.yaml` file."}
+
+    return project["evidence_server"]
+
 
 # Helper routines for sorting controls correctly. i.e. AC-2 precedes AC-10.
 def intify(s):

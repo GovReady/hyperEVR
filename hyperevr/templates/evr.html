@@ -43,8 +43,8 @@
               <div class="card-control-textlink">
                   <a href="{{project.url}}/evidence/{{control_family.name}}%2f{{ ef | urlencode }}/download"><span class="glyphicon glyphicon-download"></span></a> {{ ef }}
                   <!-- Display "control" metadata if we got it -->
-                  {% if ef in control_family.metadata %}
-                  <p><i>{{ control_family.metadata[ef]["control"] }}</i></p>
+                  {% if ef in control_family.metadata and "control" in control_family.metadata[ef]%}
+                  <p class="small" style="margin-top:8px;">control: {{ control_family.metadata[ef]["control"] }}</p>
                   <!-- <p><i>{{ control_family.metadata[ef]["component"] }}</i></p> -->
                   {% endif %}
               </div>

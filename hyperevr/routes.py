@@ -981,19 +981,34 @@ def custom_css(request, organization, project):
 def component(request, organization, project):
     """Show one component from a project."""
 
+    # Load the project.
+    try:
+      project = load_project(organization, project)
+    except ValueError:
+      return "Organization `{}` project `{}` in URL not found.".format(organization, project)
+
+    # s3 bucket being accessed.
+    evidence_server = opencontrol.load_project_evidence_server(project)
+    # You can chose any `type` of evidence_server you want
+    # as long as it is `s3`
+    if evidence_server["type"] != "s3":
+      raise ValueError("hyperEVR currently only supports AWS S3 evidence server.")
+
     # AWS/S3 interface
     # Boto imports environmental AWS parameters
     import boto3
+    from botocore.client import Config
 
     # make s3 connection
-    s3 = boto3.client('s3')
-    s3_bucket = "bc-dibnow-es-srv1"
-    #s3_bucket = "govready-es-srv-01"
-    # s3_bucket = "usgea-agencyapp-es-srv-01"
+    s3 = boto3.client('s3', 'us-east-1', config=Config(s3={'addressing_style': 'path'},signature_version='s3v4'))
 
-    evidence_server = {"name": "AWS S3",
-                       "anchor": "S3 bucket '{}'".format(s3_bucket)
-                      }
+    s3_bucket = evidence_server["location"].split(":")[-1]
+    print("s3 bucket", s3_bucket)
+
+    # Add information to evidence_server for informative display
+    evidence_server["name"] = "AWS S3"
+    evidence_server["anchor"] = "S3 bucket '{}'".format(s3_bucket)
+
 
     try:
         # Retrieve the list of objects in the bucket
@@ -1050,6 +1065,17 @@ def component(request, organization, project):
     # Convert control_families to a simple list
     control_families = list(control_families.values())
 
+    # Done.
+    return render_template(request, 'evr.html',
+                            project=project,
+                            control_families=control_families,
+                            evidence_server=evidence_server,
+                            implementation_status_css_classes=implementation_status_css_classes,
+                          )
+
+@route('/organizations/<organization>/projects/<project>/evidence/<file>/download')
+def component(request, organization, project, file):
+    """Show one component from a project."""
 
     # Load the project.
     try:
@@ -1057,22 +1083,13 @@ def component(request, organization, project):
     except ValueError:
       return "Organization `{}` project `{}` in URL not found.".format(organization, project)
 
-    # Done.
-    return render_template(request, 'evr.html',
-                            project=project,
-                            # component=component,
-                            control_families=control_families,
-                            evidence_server=evidence_server,
-                            # evidence=evidence,
-                            # control_catalog=control_catalog, # used for creating a new control in the component
-                            # source_files=source_files, # used for creating a new control in the component
-                            implementation_status_css_classes=implementation_status_css_classes,
-                            # stats=compute_control_implementation_statistics(controlimpls),
-                          )
+    # s3 bucket being accessed.
+    evidence_server = opencontrol.load_project_evidence_server(project)
 
-@route('/organizations/<organization>/projects/<project>/evidence/<file>/download')
-def component(request, organization, project, file):
-    """Show one component from a project."""
+    # You can chose any `type` of evidence_server you want
+    # as long as it is `s3`
+    if evidence_server["type"] != "s3":
+      raise ValueError("hyperEVR currently only supports AWS S3 evidence server.")
 
     # AWS/S3 interface
     # Boto imports environmental AWS parameters
@@ -1081,9 +1098,8 @@ def component(request, organization, project, file):
 
     # make s3 connection
     s3 = boto3.client('s3', 'us-east-1', config=Config(s3={'addressing_style': 'path'},signature_version='s3v4'))
-    s3_bucket = "bc-dibnow-es-srv1"
-    # s3_bucket = "govready-es-srv-01"
-    # s3_bucket = "usgea-agencyapp-es-srv-01"
+    s3_bucket = evidence_server["location"].split(":")[-1]
+    print("s3 bucket", s3_bucket)
 
     # generate pre-signed URL
     url = s3.generate_presigned_url(
