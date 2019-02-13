@@ -988,13 +988,30 @@ def component(request, organization, project):
     # make s3 connection
     s3 = boto3.client('s3')
     s3_bucket = "bc-dibnow-es-srv1"
+    #s3_bucket = "govready-es-srv-01"
+    # s3_bucket = "usgea-agencyapp-es-srv-01"
+
     evidence_server = {"name": "AWS S3",
                        "anchor": "S3 bucket '{}'".format(s3_bucket)
                       }
 
     try:
+        # Retrieve the list of objects in the bucket
         response = s3.list_objects(Bucket=s3_bucket)
         evidence_files = response['Contents']
+
+        # Retrieve the metadata for each object
+        # First we need a dictionary to store the object's metadata.
+        # The object's metadata will itself be an object of key value pairs added during upload
+        # We use a dictionary to associate the object's metadata object with the object's name
+        ev_meta = {}
+        # For each object in our original response, make a new call to get the object's metadata
+        # TODO: This loop slows as number of files increases, so we want a cache of faster approach
+        for object in response['Contents']:
+            # print(object['Key'])
+            response2 = s3.head_object(Bucket=s3_bucket, Key=object['Key'])
+            # print('#', response2['Metadata'])
+            ev_meta[object['Key']] = response2['Metadata']
         # TODO: replace IsTruncated warning with a NextMarker continuation loop
         if response['IsTruncated']:
             sys.stderr.write("WARNING: List truncated at {} objects.\n".format(response['MaxKeys']))
@@ -1019,13 +1036,20 @@ def component(request, organization, project):
               "name": fam_str,
               "sort_key": fam_str,
               "artifacts": [],
+              "metadata": {}
             }
 
-        # Put this evidence into the bucket for its family.
+        # Put this metadata into the bucket for its family.
         control_families[fam_str]["artifacts"].append(file_name)
+        # Also associated the previously collected metadata with the file_name
+        # TODO: This is a bit hacky having one array for artifacts and a dictionary
+        #       for metadata. We could probably compress 'artifacts' and 'metadata'
+        #       into a single dictionary instead of an array and a dictionary.
+        control_families[fam_str]["metadata"][file_name] = ev_meta[ef["Key"]]
 
     # Convert control_families to a simple list
     control_families = list(control_families.values())
+
 
     # Load the project.
     try:
@@ -1058,6 +1082,8 @@ def component(request, organization, project, file):
     # make s3 connection
     s3 = boto3.client('s3', 'us-east-1', config=Config(s3={'addressing_style': 'path'},signature_version='s3v4'))
     s3_bucket = "bc-dibnow-es-srv1"
+    # s3_bucket = "govready-es-srv-01"
+    # s3_bucket = "usgea-agencyapp-es-srv-01"
 
     # generate pre-signed URL
     url = s3.generate_presigned_url(
