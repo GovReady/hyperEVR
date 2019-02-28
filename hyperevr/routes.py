@@ -1013,7 +1013,12 @@ def component(request, organization, project):
     try:
         # Retrieve the list of objects in the bucket
         response = s3.list_objects(Bucket=s3_bucket)
-        evidence_files = response['Contents']
+        # If no bucket has no contents, gracefully handle
+        # by setting evidence_file to an empty list
+        if "Contents" in response:
+          evidence_files = response['Contents']
+        else:
+          evidence_files = []
 
         # Retrieve the metadata for each object
         # First we need a dictionary to store the object's metadata.
